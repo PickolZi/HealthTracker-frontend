@@ -60,7 +60,7 @@ export const callBackendEndpointWithoutJwtToken = async (
 		payload.headers.authorization = `Bearer ${jwtToken}`;
 	}
 
-	if (body != undefined || body != null) {
+	if (body != undefined && body != null) {
 		payload.body = JSON.stringify(body);
 	}
 
