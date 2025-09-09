@@ -14,7 +14,7 @@ export const authOptions: NextAuthOptions = {
 		async jwt({ token, account, user }) {
 			if (account) {
 				logger.info(
-					`[api/auth/[...nextauth]] setting google jwt token: ${account.id_token} for user: ${user?.email}`
+					`[api/auth/[...nextauth]] setting google jwt token for user: ${user?.email}`
 				);
 				token.idToken = account.id_token;
 			}
@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
 		},
 		async session({ session, token }) {
 			logger.info(
-				`[api/auth/[...nextauth]] setting session token: ${token.idToken} for user: ${token?.email}`
+				`[api/auth/[...nextauth]] setting session token for user: ${token?.email}`
 			);
 			(session as any).idToken = token.idToken;
 			return session;
