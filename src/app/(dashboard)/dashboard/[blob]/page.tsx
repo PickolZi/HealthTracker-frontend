@@ -1,6 +1,7 @@
 "use client";
 
 import { SectionCards } from "@/components/section-cards";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
 	Table,
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { WorkoutEntry } from "@/dto/workouts";
 import { isBlank } from "@/utils/common";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const Page = () => {
@@ -33,7 +35,10 @@ const Page = () => {
 		const callGetWorkoutsApi = async () => {
 			const res = await fetch(endpoint);
 			const data: WorkoutEntry[] = await res.json();
-			setWorkouts(data);
+
+			if (res.ok) {
+				setWorkouts(data);
+			}
 		};
 
 		callGetWorkoutsApi();
@@ -86,6 +91,11 @@ const Page = () => {
 					</TableBody>
 				</Table>
 			</div>
+
+			{/* Create Workout Entry button */}
+			<Button className="rounded-full w-10 h-10 p-0">
+				<Plus className="h-4 w-4" />
+			</Button>
 		</>
 	);
 };

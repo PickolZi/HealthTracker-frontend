@@ -18,10 +18,24 @@ export async function GET(req: NextRequest) {
 		);
 
 		if (date != null && isValidDateString(date)) {
-			return await callBackendEndpoint(
+			const res = await callBackendEndpoint(
 				`${WORKOUT_ENTRIES_ENDPOINT}?date=${date}`,
 				"GET"
 			);
+
+			const cloned = res.clone();
+			const clonedRes = await cloned.json();
+			if (clonedRes?.status >= 400) {
+				logger.error(
+					"[api/workoutEntries] failed request from the server, probably unauthorized"
+				);
+				return NextResponse.json(
+					{ error: "Unauthorized User" },
+					{ status: 401 }
+				);
+			}
+
+			return res;
 		} else {
 			logger.error(
 				`[api/workoutEntries] user passed an invalid date: ${date}`
