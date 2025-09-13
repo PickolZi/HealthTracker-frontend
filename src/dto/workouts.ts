@@ -9,3 +9,23 @@ export interface WorkoutEntry {
 	date: string;
 	createdAt: Date;
 }
+
+export interface Workout {
+	id: number;
+	name: string;
+	description: string;
+	muscleGroups: [
+		{
+			id: number;
+			name: string;
+		},
+		{
+			id: number;
+			name: string;
+		},
+		{
+			id: number;
+			name: string;
+		}
+	];
+}

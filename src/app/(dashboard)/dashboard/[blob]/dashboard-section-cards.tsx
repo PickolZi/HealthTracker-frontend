@@ -4,15 +4,21 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { IDashboardSectionCard } from "./types";
 
-export function SectionCards() {
+export function DashboardSectionCards({
+	calories,
+	protein,
+	numberOfWorkoutEntries,
+	numberOfDaysTracked,
+}: IDashboardSectionCard) {
 	return (
 		<div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
 			<Card className="@container/card">
 				<CardHeader>
 					<CardDescription>Calories</CardDescription>
 					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						1000 kcal
+						{calories} kcal
 					</CardTitle>
 				</CardHeader>
 			</Card>
@@ -21,7 +27,7 @@ export function SectionCards() {
 				<CardHeader>
 					<CardDescription>Protein</CardDescription>
 					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						123g
+						{protein}g
 					</CardTitle>
 				</CardHeader>
 			</Card>
@@ -30,7 +36,7 @@ export function SectionCards() {
 				<CardHeader>
 					<CardDescription>Workout Entries</CardDescription>
 					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						456 workouts
+						{numberOfWorkoutEntries} workouts
 					</CardTitle>
 				</CardHeader>
 			</Card>
@@ -39,7 +45,7 @@ export function SectionCards() {
 				<CardHeader>
 					<CardDescription>Days Tracked</CardDescription>
 					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						365 days
+						{numberOfDaysTracked} days
 					</CardTitle>
 				</CardHeader>
 			</Card>

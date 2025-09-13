@@ -40,7 +40,7 @@ export const callBackendEndpoint = async (
 	);
 };
 
-export const callBackendEndpointWithoutJwtToken = async (
+export const callBackendEndpointWithoutJwtToken = (
 	endpoint: string,
 	httpMethod: HttpMethod,
 	body?: { [key: string]: string },
@@ -64,20 +64,5 @@ export const callBackendEndpointWithoutJwtToken = async (
 		payload.body = JSON.stringify(body);
 	}
 
-	const res = await fetch(fullUrlEndpoint, payload)
-		.then(async (data) => {
-			const resData = await data.json();
-			logger.info(
-				"[utils/apis] successfully retrieved data from backend api"
-			);
-			return resData;
-		})
-		.catch((error) => {
-			logger.error(
-				`[utils/apis] failed to fetch data from backend because of: ${error}`
-			);
-			return { error: "failed to fetch data from the backend" };
-		});
-
-	return Response.json(res, { status: 200 });
+	return fetch(fullUrlEndpoint, payload);
 };

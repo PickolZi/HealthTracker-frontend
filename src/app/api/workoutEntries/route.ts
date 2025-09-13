@@ -3,14 +3,15 @@ import { callBackendEndpoint } from "@/utils/apis/apis";
 import { isBlank, isValidDateString } from "@/utils/common";
 import { NextRequest, NextResponse } from "next/server";
 
+const WORKOUT_ENTRIES_ENDPOINT = "/v1/workoutentries";
+
 export async function GET(req: NextRequest) {
-	const WORKOUT_ENTRIES_ENDPOINT = "/v1/workoutentries";
-
-	logger.info("[api/workoutEntries] fetching workoutEntries from backend");
-
 	const date = req.nextUrl.searchParams.get("date");
 
 	if (isBlank(date)) {
+		logger.info(
+			"[api/workoutEntries] fetching workoutEntries from backend"
+		);
 		return await callBackendEndpoint(WORKOUT_ENTRIES_ENDPOINT, "GET");
 	} else {
 		logger.info(
@@ -46,4 +47,14 @@ export async function GET(req: NextRequest) {
 			);
 		}
 	}
+}
+
+export async function POST(req: NextRequest) {
+	logger.info(
+		"[api/workoutEntries] creating a workoutEntry request for the backend"
+	);
+
+	const body = await req.json();
+
+	return await callBackendEndpoint(WORKOUT_ENTRIES_ENDPOINT, "POST", body);
 }
