@@ -24,6 +24,14 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 import { Workout, WorkoutEntry } from "@/dto/workouts";
 import { isBlank } from "@/utils/common";
 import { Plus } from "lucide-react";
@@ -124,6 +132,11 @@ const Page = () => {
 									<TableCell>{workout.reps}</TableCell>
 									<TableCell>{workout.weight}</TableCell>
 									<TableCell>{workout.duration}</TableCell>
+									<TableCell>
+										<WorkoutEntryModalFormDropdown
+											workoutEntryId={String(workout.id)}
+										/>
+									</TableCell>
 								</TableRow>
 							);
 						})}
@@ -303,6 +316,47 @@ const WorkoutEntryModalForm = ({
 				</form>
 			</DialogContent>
 		</Dialog>
+	);
+};
+
+const WorkoutEntryModalFormDropdown = ({
+	workoutEntryId,
+}: {
+	workoutEntryId: string;
+}) => {
+	const handleDeleteWorkoutEntry = async (workoutEntryId: string) => {
+		try {
+			const res = await fetch(
+				`/api/workoutEntries?id=${workoutEntryId}`,
+				{
+					method: "DELETE",
+				}
+			);
+			const data = await res.json();
+			if (!res.ok) {
+				throw new Error(`Request failed with status ${res.status}`);
+			}
+		} catch (err) {
+			console.error("Error deleting workout entry:", err);
+		}
+	};
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button variant="outline">...</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent className="w-28" align="end">
+				<DropdownMenuItem>Edit</DropdownMenuItem>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem
+					onClick={() => {
+						handleDeleteWorkoutEntry(workoutEntryId);
+					}}
+				>
+					Delete
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 };
 
