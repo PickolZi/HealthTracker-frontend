@@ -58,3 +58,59 @@ export async function POST(req: NextRequest) {
 
 	return await callBackendEndpoint(WORKOUT_ENTRIES_ENDPOINT, "POST", body);
 }
+
+export async function PUT(req: NextRequest) {
+	logger.info(
+		"[api/workoutEntries] updating a workoutEntry request for the backend"
+	);
+
+	try {
+		const workoutEntryId = getParamsElseThrowsError(req, "id");
+		const body = await req.json();
+		const endpoint = WORKOUT_ENTRIES_ENDPOINT + `/${workoutEntryId}`;
+
+		return await callBackendEndpoint(endpoint, "PUT", body);
+	} catch (err: any) {
+		logger.info(
+			`[api/workoutEntries] failed to update workoutEntry because of ${err?.message}`
+		);
+		return NextResponse.json(
+			{ error: err?.message || "Bad Request" },
+			{ status: 400 }
+		);
+	}
+}
+
+export async function DELETE(req: NextRequest) {
+	logger.info(
+		"[api/workoutEntries] deleting a workoutEntry request for the backend"
+	);
+
+	try {
+		const workoutEntryId = getParamsElseThrowsError(req, "id");
+		const endpoint = WORKOUT_ENTRIES_ENDPOINT + `/${workoutEntryId}`;
+
+		return await callBackendEndpoint(endpoint, "DELETE");
+	} catch (err: any) {
+		logger.info(
+			`[api/workoutEntries] failed to delete workoutEntry because of ${err?.message}`
+		);
+		return NextResponse.json(
+			{ error: err?.message || "Bad Request" },
+			{ status: 400 }
+		);
+	}
+}
+
+const getParamsElseThrowsError = (
+	req: NextRequest,
+	queryName: string
+): string => {
+	const value = req.nextUrl.searchParams.get(queryName);
+
+	if (!value) {
+		throw new Error(`Missing required query parameter: ${queryName}`);
+	}
+
+	return value;
+};
