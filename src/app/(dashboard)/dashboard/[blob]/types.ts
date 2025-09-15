@@ -14,8 +14,6 @@ export interface IWorkoutEntryModalForm {
 	dialogDescription: string;
 	buttonSubmitText: string;
 	workouts: Workout[];
-	workoutEntries: WorkoutEntryDto[];
-	setWorkoutEntries: Dispatch<SetStateAction<WorkoutEntryDto[]>>;
 	setError: Dispatch<SetStateAction<string>>;
 	error: string;
 }

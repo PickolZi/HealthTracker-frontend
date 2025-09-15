@@ -44,10 +44,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { useWorkoutEntriesStore } from "@/app/store";
 
 const Page = () => {
 	const [date, setDate] = useState<Date | undefined>(new Date());
-	const [workoutEntries, setWorkoutEntries] = useState<WorkoutEntry[]>([]);
+	const { workoutEntries, setWorkoutEntries } = useWorkoutEntriesStore();
 	const [workouts, setWorkouts] = useState<Workout[]>([]);
 	const [formError, setFormError] = useState<string>("");
 
@@ -156,8 +157,6 @@ const Page = () => {
 					dialogDescription="Log a new workout entry. Click create when you're done."
 					buttonSubmitText="Create"
 					workouts={workouts}
-					workoutEntries={workoutEntries}
-					setWorkoutEntries={setWorkoutEntries}
 					setError={setFormError}
 					error={formError}
 				/>
@@ -172,11 +171,11 @@ const WorkoutEntryModalForm = ({
 	dialogDescription,
 	buttonSubmitText,
 	workouts,
-	workoutEntries,
-	setWorkoutEntries,
 	setError,
 	error,
 }: IWorkoutEntryModalForm) => {
+	const { workoutEntries, setWorkoutEntries } = useWorkoutEntriesStore();
+
 	const handleCreateWorkoutEntrySubmit = async (
 		e: FormEvent<HTMLFormElement>
 	) => {
