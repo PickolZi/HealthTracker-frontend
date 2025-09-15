@@ -44,10 +44,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useWorkoutEntriesStore } from "@/app/store";
+import { useSelectedDateStore, useWorkoutEntriesStore } from "@/app/store";
 
 const Page = () => {
-	const [date, setDate] = useState<Date | undefined>(new Date());
+	const { selectedDate, setSelectedDate } = useSelectedDateStore();
 	const { workoutEntries, setWorkoutEntries } = useWorkoutEntriesStore();
 	const [workouts, setWorkouts] = useState<Workout[]>([]);
 	const [formError, setFormError] = useState<string>("");
@@ -69,7 +69,7 @@ const Page = () => {
 		const LIST_WORKOUT_ENTRIES_ENDPOINT = "/api/workoutEntries";
 		let endpoint = LIST_WORKOUT_ENTRIES_ENDPOINT;
 
-		const resolvedDate = toIsoDate(date?.toLocaleDateString());
+		const resolvedDate = toIsoDate(selectedDate?.toLocaleDateString());
 
 		if (!isBlank(resolvedDate)) {
 			endpoint += `?date=${resolvedDate}`;
@@ -85,7 +85,7 @@ const Page = () => {
 		};
 
 		callGetWorkoutsEntries();
-	}, [date]);
+	}, [selectedDate]);
 
 	return (
 		<>
@@ -99,8 +99,8 @@ const Page = () => {
 			<div className="flex justify-center">
 				<Calendar
 					mode="single"
-					selected={date}
-					onSelect={setDate}
+					selected={selectedDate}
+					onSelect={setSelectedDate}
 					className="rounded-lg border [--cell-size:--spacing(11)] md:[--cell-size:--spacing(12)]"
 					captionLayout="dropdown"
 					buttonVariant="ghost"
@@ -174,6 +174,7 @@ const WorkoutEntryModalForm = ({
 	setError,
 	error,
 }: IWorkoutEntryModalForm) => {
+	const { selectedDate } = useSelectedDateStore();
 	const { workoutEntries, setWorkoutEntries } = useWorkoutEntriesStore();
 
 	const handleCreateWorkoutEntrySubmit = async (
@@ -296,7 +297,11 @@ const WorkoutEntryModalForm = ({
 								id="workoutEntryDate"
 								name="workoutEntryDate"
 								type="date"
-								defaultValue={getTodaysDate()}
+								defaultValue={
+									toIsoDate(
+										selectedDate?.toLocaleDateString()
+									) || getTodaysDate()
+								}
 								autoComplete="off"
 							/>
 						</div>

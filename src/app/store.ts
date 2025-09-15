@@ -11,3 +11,14 @@ export const useWorkoutEntriesStore = create<WorkoutEntriesState>((set) => ({
 	setWorkoutEntries: (newWorkoutEntries) =>
 		set({ workoutEntries: newWorkoutEntries }),
 }));
+
+type SelectedDateState = {
+	selectedDate: Date | undefined;
+	setSelectedDate: (selectedDate: Date | undefined) => void;
+};
+
+export const useSelectedDateStore = create<SelectedDateState>((set) => ({
+	selectedDate: new Date(),
+	setSelectedDate: (newSelectedDate) =>
+		set({ selectedDate: newSelectedDate }),
+}));
