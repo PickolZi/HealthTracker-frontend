@@ -328,6 +328,8 @@ const WorkoutEntryModalFormDropdown = ({
 }: {
 	workoutEntryId: string;
 }) => {
+	const { workoutEntries, setWorkoutEntries } = useWorkoutEntriesStore();
+
 	const handleDeleteWorkoutEntry = async (workoutEntryId: string) => {
 		try {
 			const res = await fetch(
@@ -340,10 +342,16 @@ const WorkoutEntryModalFormDropdown = ({
 			if (!res.ok) {
 				throw new Error(`Request failed with status ${res.status}`);
 			}
+			setWorkoutEntries(
+				workoutEntries.filter(
+					(workoutEntry) => String(workoutEntry.id) != workoutEntryId
+				)
+			);
 		} catch (err) {
 			console.error("Error deleting workout entry:", err);
 		}
 	};
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
