@@ -1,5 +1,6 @@
 export interface WorkoutEntry {
 	id: number;
+	workoutId: number;
 	workoutName: string;
 	workoutDescription: string;
 	sets: number;

@@ -8,14 +8,14 @@ export interface IDashboardSectionCard {
 	numberOfDaysTracked: number;
 }
 
+export type WorkoutEntryModalType = "Create" | "Edit";
+
 export interface IWorkoutEntryModalForm {
-	button: ReactNode;
-	dialogTitle: string;
-	dialogDescription: string;
-	buttonSubmitText: string;
+	isFormModalOpen: boolean;
+	setIsFormModalOpen: Dispatch<SetStateAction<boolean>>;
+	workoutEntryModalType: WorkoutEntryModalType;
 	workouts: Workout[];
-	setError: Dispatch<SetStateAction<string>>;
-	error: string;
+	editWorkoutId?: number;
 }
 
 export interface WorkoutEntryRequest {

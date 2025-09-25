@@ -35,8 +35,14 @@ import {
 import { Workout, WorkoutEntry } from "@/dto/workouts";
 import { isBlank } from "@/utils/common";
 import { Plus } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react";
-import { IWorkoutEntryModalForm } from "./types";
+import {
+	Dispatch,
+	FormEvent,
+	SetStateAction,
+	useEffect,
+	useState,
+} from "react";
+import { IWorkoutEntryModalForm, WorkoutEntryModalType } from "./types";
 import { Select } from "@/components/ui/select";
 import {
 	SelectContent,
@@ -50,7 +56,10 @@ const Page = () => {
 	const { selectedDate, setSelectedDate } = useSelectedDateStore();
 	const { workoutEntries, setWorkoutEntries } = useWorkoutEntriesStore();
 	const [workouts, setWorkouts] = useState<Workout[]>([]);
-	const [formError, setFormError] = useState<string>("");
+	const [editWorkoutId, setEditWorkoutId] = useState<number>(0);
+	const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false);
+	const [workoutEntryModalType, setWorkoutEntryModalType] =
+		useState<WorkoutEntryModalType>("Create");
 
 	useEffect(() => {
 		const callGetWorkouts = async () => {
@@ -136,6 +145,13 @@ const Page = () => {
 									<TableCell>
 										<WorkoutEntryModalFormDropdown
 											workoutEntryId={String(workout.id)}
+											setWorkoutEntryModalType={
+												setWorkoutEntryModalType
+											}
+											setIsFormModalOpen={
+												setIsFormModalOpen
+											}
+											setEditWorkoutId={setEditWorkoutId}
 										/>
 									</TableCell>
 								</TableRow>
@@ -146,39 +162,117 @@ const Page = () => {
 			</div>
 
 			{/* Create Workout-Entry button */}
-			<div>
-				<WorkoutEntryModalForm
-					button={
-						<Button className="absolute right-4 lg:right-6 bottom-4 lg:bottom-6 rounded-full w-10 h-10 p-0">
-							<Plus className="h-4 w-4" />
-						</Button>
-					}
-					dialogTitle="Create Workout Entry"
-					dialogDescription="Log a new workout entry. Click create when you're done."
-					buttonSubmitText="Create"
-					workouts={workouts}
-					setError={setFormError}
-					error={formError}
-				/>
-			</div>
+			<Button
+				className="absolute right-4 lg:right-6 bottom-4 lg:bottom-6 rounded-full w-10 h-10 p-0"
+				onClick={() => {
+					setIsFormModalOpen(!isFormModalOpen);
+					setWorkoutEntryModalType("Create");
+				}}
+			>
+				<Plus className="h-4 w-4" />
+			</Button>
+
+			{/* Modal that appears when a workout entry needs to be created or updated */}
+			<WorkoutEntryModalForm
+				isFormModalOpen={isFormModalOpen}
+				setIsFormModalOpen={setIsFormModalOpen}
+				workoutEntryModalType={workoutEntryModalType}
+				workouts={workouts}
+				editWorkoutId={editWorkoutId}
+			/>
 		</>
 	);
 };
 
 const WorkoutEntryModalForm = ({
-	button,
-	dialogTitle,
-	dialogDescription,
-	buttonSubmitText,
+	isFormModalOpen,
+	setIsFormModalOpen,
+	workoutEntryModalType,
 	workouts,
-	setError,
-	error,
+	editWorkoutId,
 }: IWorkoutEntryModalForm) => {
+	type HTTP_METHOD = "POST" | "PUT";
+
 	const { selectedDate } = useSelectedDateStore();
 	const { workoutEntries, setWorkoutEntries } = useWorkoutEntriesStore();
+	const [error, setError] = useState<string>("");
+
+	const WORKOUT_ENTRIES_ENDPOINT = "/api/workoutEntries";
+
+	const [currentWorkout, setCurrentWorkout] = useState<
+		WorkoutEntry | undefined
+	>(undefined);
+
+	useEffect(() => {
+		setCurrentWorkout(
+			workoutEntries
+				.filter((workoutEntry) => {
+					return workoutEntry.id == editWorkoutId;
+				})
+				.at(0)
+		);
+	}, [workoutEntries, editWorkoutId]);
+
+	interface WorkoutEntryModalFormProp {
+		dialogTitle: string;
+		dialogDescription: string;
+		buttonSubmitText: string;
+	}
+
+	interface WorkoutEntryModalFormDataProp {
+		Create: WorkoutEntryModalFormProp;
+		Edit: WorkoutEntryModalFormProp;
+	}
+
+	const workoutEntryModalTypeData: WorkoutEntryModalFormDataProp = {
+		Create: {
+			dialogTitle: "Create Workout Entry",
+			dialogDescription:
+				"Log a new workout entry. Click create when you're done.",
+			buttonSubmitText: "Create",
+		},
+		Edit: {
+			dialogTitle: "Edit Workout Entry",
+			dialogDescription:
+				"Edit an existing workout entry. Click update when you're done.",
+			buttonSubmitText: "Update",
+		},
+	};
 
 	const handleCreateWorkoutEntrySubmit = async (
 		e: FormEvent<HTMLFormElement>
+	) => {
+		handleWorkoutEntrySubmit(
+			e,
+			WORKOUT_ENTRIES_ENDPOINT,
+			"POST",
+			(workoutEntries, res) => [...workoutEntries, res]
+		);
+	};
+
+	const handleEditWorkoutEntrySubmit = async (
+		e: FormEvent<HTMLFormElement>
+	) => {
+		const formData = new FormData(e.currentTarget);
+		const workoutEntryId = formData.get("workoutEntryId");
+		handleWorkoutEntrySubmit(
+			e,
+			WORKOUT_ENTRIES_ENDPOINT + `?id=${workoutEntryId}`,
+			"PUT",
+			(workoutEntries, res) => [
+				...workoutEntries.filter(
+					(workoutEntry) => workoutEntry.id != res.id
+				),
+				res,
+			]
+		);
+	};
+
+	const handleWorkoutEntrySubmit = async (
+		e: FormEvent<HTMLFormElement>,
+		endpoint: string,
+		httpMethod: HTTP_METHOD,
+		callback: (workoutEntries: WorkoutEntry[], res: any) => WorkoutEntry[]
 	) => {
 		e.preventDefault();
 
@@ -204,8 +298,8 @@ const WorkoutEntryModalForm = ({
 
 		try {
 			setError("");
-			const res = await fetch("/api/workoutEntries", {
-				method: "POST",
+			const res = await fetch(endpoint, {
+				method: httpMethod,
 				body: JSON.stringify(body),
 			});
 
@@ -216,25 +310,59 @@ const WorkoutEntryModalForm = ({
 				throw new Error(`Request failed with status ${res.status}`);
 			}
 
-			setWorkoutEntries([...workoutEntries, data]);
+			setWorkoutEntries(callback(workoutEntries, data));
 		} catch (err) {
 			console.error("Error submitting form:", err);
 		}
 	};
 
+	let dialogTitle: String = "";
+	let dialogDescription: String = "";
+	let buttonSubmitText: String = "";
+
+	if (workoutEntryModalType == "Create") {
+		dialogTitle = workoutEntryModalTypeData.Create.dialogTitle;
+		dialogDescription = workoutEntryModalTypeData.Create.dialogDescription;
+		buttonSubmitText = workoutEntryModalTypeData.Create.buttonSubmitText;
+	} else {
+		dialogTitle = workoutEntryModalTypeData.Edit.dialogTitle;
+		dialogDescription = workoutEntryModalTypeData.Edit.dialogDescription;
+		buttonSubmitText = workoutEntryModalTypeData.Edit.buttonSubmitText;
+	}
+
 	return (
-		<Dialog>
-			<DialogTrigger asChild>{button}</DialogTrigger>
+		<Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
+			<DialogTrigger asChild></DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>{dialogTitle}</DialogTitle>
 					<DialogDescription>{dialogDescription}</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleCreateWorkoutEntrySubmit}>
+				<form
+					onSubmit={
+						workoutEntryModalType == "Create"
+							? handleCreateWorkoutEntrySubmit
+							: handleEditWorkoutEntrySubmit
+					}
+				>
 					<div className="grid gap-4">
+						<Input
+							id="workoutEntryId"
+							name="workoutEntryId"
+							type="hidden"
+							defaultValue={currentWorkout?.id}
+						/>
 						<div className="grid gap-3">
 							<Label>Workout</Label>
-							<Select name="workoutEntryWorkoutId">
+							<Select
+								name="workoutEntryWorkoutId"
+								defaultValue={
+									workoutEntryModalType == "Edit" &&
+									currentWorkout != undefined
+										? String(currentWorkout.workoutId)
+										: undefined
+								}
+							>
 								<SelectTrigger>
 									<SelectValue placeholder="Select a workout" />
 								</SelectTrigger>
@@ -259,6 +387,12 @@ const WorkoutEntryModalForm = ({
 								name="workoutEntrySets"
 								type="number"
 								autoComplete="off"
+								defaultValue={
+									workoutEntryModalType == "Edit" &&
+									currentWorkout != undefined
+										? currentWorkout.sets
+										: undefined
+								}
 							/>
 						</div>
 						<div className="grid gap-3">
@@ -268,6 +402,12 @@ const WorkoutEntryModalForm = ({
 								name="workoutEntryReps"
 								type="number"
 								autoComplete="off"
+								defaultValue={
+									workoutEntryModalType == "Edit" &&
+									currentWorkout != undefined
+										? currentWorkout.reps
+										: undefined
+								}
 							/>
 						</div>
 						<div className="grid gap-3">
@@ -277,6 +417,12 @@ const WorkoutEntryModalForm = ({
 								name="workoutEntryWeight"
 								type="number"
 								autoComplete="off"
+								defaultValue={
+									workoutEntryModalType == "Edit" &&
+									currentWorkout != undefined
+										? currentWorkout.weight
+										: undefined
+								}
 							/>
 						</div>
 						<div className="grid gap-3">
@@ -287,8 +433,13 @@ const WorkoutEntryModalForm = ({
 								id="workoutEntryDuration"
 								name="workoutEntryDuration"
 								type="number"
-								defaultValue="0"
 								autoComplete="off"
+								defaultValue={
+									workoutEntryModalType == "Edit" &&
+									currentWorkout != undefined
+										? currentWorkout.duration
+										: "0"
+								}
 							/>
 						</div>
 						<div className="grid gap-3">
@@ -325,8 +476,14 @@ const WorkoutEntryModalForm = ({
 
 const WorkoutEntryModalFormDropdown = ({
 	workoutEntryId,
+	setWorkoutEntryModalType,
+	setIsFormModalOpen,
+	setEditWorkoutId,
 }: {
 	workoutEntryId: string;
+	setWorkoutEntryModalType: Dispatch<SetStateAction<WorkoutEntryModalType>>;
+	setIsFormModalOpen: Dispatch<SetStateAction<boolean>>;
+	setEditWorkoutId: Dispatch<SetStateAction<number>>;
 }) => {
 	const { workoutEntries, setWorkoutEntries } = useWorkoutEntriesStore();
 
@@ -358,7 +515,15 @@ const WorkoutEntryModalFormDropdown = ({
 				<Button variant="outline">...</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="w-28" align="end">
-				<DropdownMenuItem>Edit</DropdownMenuItem>
+				<DropdownMenuItem
+					onClick={() => {
+						setEditWorkoutId(parseInt(workoutEntryId));
+						setWorkoutEntryModalType("Edit");
+						setIsFormModalOpen(true);
+					}}
+				>
+					Edit
+				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					onClick={() => {
