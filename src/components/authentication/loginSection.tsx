@@ -1,5 +1,5 @@
 "use client";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,7 @@ const UsernameAndPasswordSection = ({
 	buttonText,
 	visible,
 }: {
-	buttonText: String;
+	buttonText: string;
 	visible: boolean;
 }) => {
 	if (!visible) return <></>;
@@ -69,7 +69,7 @@ const NeedAnAccountSection = ({
 	signupUrl,
 	visible,
 }: {
-	signupText: String;
+	signupText: string;
 	signupUrl: string;
 	visible: boolean;
 }) => {
@@ -99,12 +99,9 @@ const LoginSection = ({
 	signupText = "Need an account?",
 	signupUrl = "https://google.com",
 }: LoginProps) => {
-	const { data: session } = useSession();
-
 	useEffect(() => {
 		const callApi = async () => {
-			const res = await fetch("/api/exchange");
-			const { jwt } = await res.json();
+			await fetch("/api/exchange");
 		};
 		callApi();
 	}, []);

@@ -15,9 +15,6 @@ export const callBackendEndpoint = async (
 	httpMethod: HttpMethod,
 	body?: { [key: string]: string }
 ): Promise<Response> => {
-	const backendEndpoint = process.env.BACKEND_ENDPOINT;
-	const fullUrlEndpoint = new URL(endpoint, backendEndpoint);
-
 	const jwtToken = (await cookies()).get("jwt")?.value;
 	if (isBlank(jwtToken)) {
 		logger.info(
@@ -30,6 +27,7 @@ export const callBackendEndpoint = async (
 			{ status: 401 }
 		);
 	}
+
 	logger.info(`[utils/apis] successfully found a custom JWT: ${jwtToken}`);
 
 	return callBackendEndpointWithoutJwtToken(

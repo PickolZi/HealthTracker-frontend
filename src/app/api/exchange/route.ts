@@ -16,6 +16,7 @@ export async function GET() {
 
 	const session = await getServerSession(authOptions);
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	if (!(session as any)?.idToken) {
 		logger.error(
 			"[api/exchange] failed to find google token for session user. Therefore can not fetch custom JWT token"
@@ -25,6 +26,7 @@ export async function GET() {
 	logger.info("[api/exchange] successfully found google token for user");
 
 	const body = {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		googleIdToken: (session as any).idToken,
 	};
 

@@ -1,8 +1,6 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { jwtVerify } from "jose";
-import { getServerSession } from "next-auth";
 
-export const isBlank = (str: string | String | null | undefined): boolean => {
+export const isBlank = (str: string | null | undefined): boolean => {
 	return !str || str.trim().length == 0;
 };
 
@@ -18,7 +16,7 @@ export function isValidDateString(dateStr: string): boolean {
 	}
 
 	// 2. Parse components
-	const [year, month, day] = dateStr.split("-").map(Number);
+	const [_year, month, day] = dateStr.split("-").map(Number);
 
 	// 3. Validate ranges
 	if (month < 1 || month > 12) return false;

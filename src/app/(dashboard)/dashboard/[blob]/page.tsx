@@ -272,6 +272,7 @@ const WorkoutEntryModalForm = ({
 		e: FormEvent<HTMLFormElement>,
 		endpoint: string,
 		httpMethod: HTTP_METHOD,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		callback: (workoutEntries: WorkoutEntry[], res: any) => WorkoutEntry[]
 	) => {
 		e.preventDefault();
@@ -316,9 +317,9 @@ const WorkoutEntryModalForm = ({
 		}
 	};
 
-	let dialogTitle: String = "";
-	let dialogDescription: String = "";
-	let buttonSubmitText: String = "";
+	let dialogTitle: string = "";
+	let dialogDescription: string = "";
+	let buttonSubmitText: string = "";
 
 	if (workoutEntryModalType == "Create") {
 		dialogTitle = workoutEntryModalTypeData.Create.dialogTitle;
@@ -495,7 +496,7 @@ const WorkoutEntryModalFormDropdown = ({
 					method: "DELETE",
 				}
 			);
-			const data = await res.json();
+
 			if (!res.ok) {
 				throw new Error(`Request failed with status ${res.status}`);
 			}

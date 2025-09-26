@@ -70,6 +70,7 @@ export async function PUT(req: NextRequest) {
 		const endpoint = WORKOUT_ENTRIES_ENDPOINT + `/${workoutEntryId}`;
 
 		return await callBackendEndpoint(endpoint, "PUT", body);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (err: any) {
 		logger.info(
 			`[api/workoutEntries] failed to update workoutEntry because of ${err?.message}`
@@ -91,6 +92,7 @@ export async function DELETE(req: NextRequest) {
 		const endpoint = WORKOUT_ENTRIES_ENDPOINT + `/${workoutEntryId}`;
 
 		return await callBackendEndpoint(endpoint, "DELETE");
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (err: any) {
 		logger.info(
 			`[api/workoutEntries] failed to delete workoutEntry because of ${err?.message}`

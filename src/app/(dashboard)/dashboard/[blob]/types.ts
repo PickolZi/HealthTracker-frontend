@@ -1,5 +1,5 @@
-import { Workout, WorkoutEntry as WorkoutEntryDto } from "@/dto/workouts";
-import { Dispatch, ReactNode, SetStateAction } from "react";
+import { Workout } from "@/dto/workouts";
+import { Dispatch, SetStateAction } from "react";
 
 export interface IDashboardSectionCard {
 	calories: number;

@@ -24,6 +24,7 @@ export const authOptions: NextAuthOptions = {
 			logger.info(
 				`[api/auth/[...nextauth]] setting session token for user: ${token?.email}`
 			);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			(session as any).idToken = token.idToken;
 			return session;
 		},
